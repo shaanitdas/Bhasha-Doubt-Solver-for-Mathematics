@@ -9,7 +9,7 @@ from decimal import Decimal, InvalidOperation
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Iterator
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from sarvamai import SarvamAI
 
@@ -465,8 +465,18 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def request_path(self) -> str:
+        # Vercel rewrites /api/<route> to /api?route=<route>, so rebuild the original path.
+        parsed = urlparse(self.path)
+        path = parsed.path.rstrip("/") or "/"
+        if path == "/api":
+            route = parse_qs(parsed.query).get("route", [""])[0].strip("/")
+            if route:
+                return f"/api/{route}"
+        return path
+
     def do_GET(self) -> None:
-        path = urlparse(self.path).path
+        path = self.request_path()
         if path == "/api/model":
             self.send_json({"misconceptions": learner_model()})
             return
@@ -481,7 +491,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_POST(self) -> None:
-        path = urlparse(self.path).path
+        path = self.request_path()
         if path == "/api/reset":
             with database() as connection:
                 connection.execute("DELETE FROM misconceptions")
