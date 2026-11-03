@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bhasha Doubt Solver</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <style>
+    :root{--ink:#17202a;--muted:#718096;--paper:#f8f6f1;--card:#fff;--pink:#ec5b7a;--blue:#4b6bfb;--line:#e7e2da;--amber:#d79b28;--green:#24966b}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font:15px/1.5 Inter,system-ui,sans-serif}
+    .shell{max-width:1120px;margin:auto;padding:28px 20px 50px}header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:22px}
+    h1{margin:0;font-size:clamp(28px,5vw,46px);letter-spacing:-.05em}h1 span{color:var(--pink)}h2{margin:0 0 10px;font-size:18px}.sub{color:var(--muted);margin:7px 0 0}.badge{background:#ffe2e9;color:#a83252;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;white-space:nowrap}
+    .grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr);gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 12px 30px #4d3c2010}
+    .chat{height:390px;overflow:auto;background:#f8f7fc;border-radius:15px;padding:15px;margin-bottom:16px;scroll-behavior:smooth}.empty{color:var(--muted);display:block;padding:28px 8px;text-align:center}
+    .message{display:flex;margin:0 0 14px;animation:rise .2s ease-out}.message.student{justify-content:flex-end}.bubble{max-width:85%;padding:11px 14px;border-radius:15px 15px 15px 4px;background:#fff;border:1px solid var(--line);white-space:pre-wrap;overflow-wrap:anywhere}.student .bubble{background:#17202a;color:#fff;border:0;border-radius:15px 15px 4px 15px}.meta{font-size:11px;color:var(--muted);margin:0 5px 4px}.student .meta{text-align:right}
+    @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}.typing{display:inline-flex;gap:4px;align-items:center;color:var(--muted);padding:10px 12px}.typing i{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:bounce 1s infinite}.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}@keyframes bounce{50%{transform:translateY(-4px);opacity:.5}}
+    label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 7px}textarea,select{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff;color:var(--ink);font:inherit;margin-bottom:13px}textarea{min-height:74px;resize:vertical}.row{display:flex;gap:12px;align-items:flex-end}.row>*{flex:1}
+    button{border:0;border-radius:11px;padding:11px 14px;background:var(--ink);color:#fff;font:inherit;font-weight:750;cursor:pointer}button:hover{opacity:.9}button:disabled{opacity:.55;cursor:wait}.mic{flex:0 0 auto;background:#eef1ff;color:var(--blue);padding:8px 11px}.ask{background:var(--pink);width:100%;margin-top:4px}
+    .confidence{display:flex;gap:6px;margin-bottom:13px}.confidence button{background:#f3f1ed;color:var(--ink);padding:8px 9px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15}.confidence button b{font-size:18px}.confidence button.active{background:#dfe5ff;color:#304bc1;outline:2px solid #aebcff}.show-inline{background:#eef1ff;color:var(--blue);margin-top:4px;border:1px solid #cbd4ff}.send-wrap #show-answer{flex:0 0 auto;width:auto;padding:8px 11px;font-size:13px;white-space:nowrap}.show-inline:disabled{opacity:.55;cursor:wait}
+    .compact-form{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;position:sticky;bottom:0;background:var(--card);padding-top:10px}.compact-form textarea{min-height:46px;height:46px;margin:0}.compact-form label{display:none}.compact-form .controls{grid-column:1/-1}.compact-form .row{grid-column:1/-1}.compact-form select{margin:0}.compact-form .confidence{margin:0}
+    #current-question{display:flex;gap:8px;align-items:center;background:#fff7e8;border:1px solid #f0d9a1;border-radius:10px;padding:8px 10px;margin-bottom:12px;font-size:13px}#current-question[hidden]{display:none}#current-question-text{flex:1;overflow-wrap:anywhere}#new-question{padding:6px 9px;font-size:12px;background:var(--blue)}
+    .model-head{display:flex;justify-content:flex-end;align-items:center;margin:16px 0 8px}.count-button{background:none;color:var(--blue);padding:0;text-decoration:underline;font-size:12px}
+    .map{display:grid;gap:8px;min-height:70px}.map-empty{color:var(--muted);font-size:13px}.map-card{display:flex;justify-content:space-between;gap:10px;align-items:center;border:1px solid var(--line);border-left:5px solid var(--pink);border-radius:11px;padding:10px 12px;background:#fff}.map-card.amber{border-left-color:var(--amber)}.map-card.green{border-left-color:var(--green)}.map-card strong{display:block}.map-card small{color:var(--muted)}.model-note,.footer{color:var(--muted);font-size:13px}.footer{text-align:center;margin-top:16px;font-size:12px}.error{color:#b4233d;background:#fff0f2;padding:10px 12px;border-radius:10px;display:none;margin-top:10px}.retry{background:#fff;color:#b4233d;border:1px solid #efb3bd;padding:7px 10px;margin-top:8px;font-size:12px}
+    .panel-backdrop{position:fixed;inset:0;background:#17202a66;display:none;align-items:center;justify-content:center;padding:18px;z-index:5}.panel{background:var(--paper);border-radius:18px;width:min(520px,100%);max-height:80vh;overflow:auto;padding:20px;box-shadow:0 20px 60px #17202a44}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.close{background:transparent;color:var(--ink);font-size:20px;padding:4px 8px}
+    @media(max-width:760px){.shell{padding:20px 12px 35px}header{display:block}.badge{display:inline-block;margin-top:13px}.grid{grid-template-columns:1fr}.chat{height:330px}.card{padding:15px}.compact-form{grid-template-columns:1fr 1fr}.compact-form .send-wrap{grid-column:1/-1}.compact-form .send-wrap .ask{margin-top:0}.row{gap:8px}.confidence button{padding:7px 6px}.confidence button span{font-size:10px}}
+    @media(max-width:390px){h1{font-size:31px}.sub{font-size:13px}.compact-form{display:block}.compact-form textarea,.compact-form select{margin-bottom:7px}.compact-form .row{margin-top:7px}.confidence{justify-content:space-between}.confidence button{flex:1}.chat{height:300px}}
+    .compact-form #current-question,.compact-form .model-head,.compact-form .error{grid-column:1/-1}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header><div><h1><span>Bhasha</span> Doubt Solver</h1><p class="sub">Explain your thinking. Fix the mistake. Remember it next time.</p></div><div class="badge">Socratic · Persistent · Code-switch friendly</div></header>
+  <div class="grid">
+    <section class="card">
+      <div class="chat" id="chat" aria-live="polite"><span class="empty">Start with a doubt. I’ll ask what you’ve tried before I guide you.</span></div>
+      <div id="form">
+        <div id="current-question" hidden><strong>Current question</strong><span id="current-question-text"></span><button id="new-question" type="button">New question</button></div>
+        <label for="question">What are you stuck on?</label><textarea id="question" placeholder="e.g. Why does (a + b)² have a 2ab term?"></textarea>
+        <label for="attempt">What have you tried? <button class="mic" id="mic" title="Voice input">🎙</button></label><textarea id="attempt" placeholder="Show your thinking, even if you think it is wrong."></textarea>
+        <div class="row"><div><label for="language">Feedback language</label><select id="language"><option>English</option><option>Hinglish</option><option>Hindi</option><option value="Bengali">বাংলা (Bengali)</option></select></div><div><label>How sure are you?</label><div class="confidence"><button data-value="unsure"><b>😬</b><span>Not sure</span></button><button data-value="maybe"><b>😐</b><span>Maybe</span></button><button data-value="sure"><b>😎</b><span>Confident</span></button></div></div></div>
+        <div class="model-head"><button class="count-button" id="count" type="button">0 misconceptions tracked</button></div>
+        <div class="row send-wrap"><button class="ask" id="ask" type="button">Guide me →</button><button class="show-inline" id="show-answer" type="button">Show answer</button></div><div class="error" id="error" role="alert"></div>
+      </div>
+    </section>
+    <aside class="card"><h2>Misconception Map</h2><p class="model-note">Patterns, not marks. Red means we’re working on it; green means it is becoming stable.</p><div class="map" id="map"><span class="map-empty">Your first pattern will appear here.</span></div></aside>
+  </div><p class="footer">Voice input uses your browser’s speech recognition. Your learner model is saved in this browser on this device.</p>
+</main>
+<div class="panel-backdrop" id="panel-backdrop"><section class="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title"><div class="panel-head"><h2 id="panel-title">Misconceptions tracked</h2><button class="close" id="close-panel" type="button">×</button></div><div id="panel-list"></div><button id="reset-model" type="button">Reset my learner model</button></section></div>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script>
+  let confidence="unsure",hintLevel=1,lastRequest=null,modelItems=[],activeQuestion="",conversation=[],hintLevels={};
+  const $=id=>document.getElementById(id);
+  const tagLabels={square_of_sum_error:"squaring a sum",inverse_operation_error:"inverse operations",distributive_property_error:"distributing terms",chain_rule_error:"the chain rule",speed_velocity_confusion:"speed and velocity",sign_error:"positive and negative signs"};
+  function saveState(){try{sessionStorage.setItem("bhasha-state",JSON.stringify({activeQuestion,conversation,confidence,language:$("language").value,hintLevels}))}catch{}}
+  function restoreState(){try{const state=JSON.parse(sessionStorage.getItem("bhasha-state")||"{}");activeQuestion=state.activeQuestion||"";conversation=Array.isArray(state.conversation)?state.conversation:[];confidence=state.confidence||"unsure";hintLevels=state.hintLevels||{};if(state.language)$("language").value=state.language}catch{};document.querySelectorAll(".confidence button").forEach(item=>item.classList.toggle("active",item.dataset.value===confidence));if(activeQuestion){$("question").value=activeQuestion;$("question").readOnly=true;$("current-question-text").textContent=activeQuestion;$("current-question").hidden=false}if(conversation.length)$("chat").innerHTML="";conversation.forEach(turn=>addMessage(turn.role==="user"?"student":"tutor",turn.content))}
+  document.querySelectorAll(".confidence button").forEach(button=>button.onclick=()=>{confidence=button.dataset.value;document.querySelectorAll(".confidence button").forEach(item=>item.classList.remove("active"));button.classList.add("active");saveState()});
+  $("language").onchange=saveState;
+  function renderMath(root){if(!window.katex)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())if(walker.currentNode.textContent.includes("$"))nodes.push(walker.currentNode);nodes.forEach(node=>{const raw=node.textContent,pattern=/\$([^$]+)\$/g,fragment=document.createDocumentFragment();let last=0,match;while((match=pattern.exec(raw))){fragment.append(document.createTextNode(raw.slice(last,match.index)));try{const formula=document.createElement("span");formula.innerHTML=katex.renderToString(match[1],{throwOnError:false,displayMode:false,trust:false});fragment.append(formula)}catch{fragment.append(document.createTextNode(match[0]))}last=pattern.lastIndex}fragment.append(document.createTextNode(raw.slice(last)));node.replaceWith(fragment)})}
+  function addMessage(role,text,extra=""){const wrap=document.createElement("div");wrap.className=`message ${role}`;wrap.innerHTML=`<div><div class="meta">${role==="student"?"You":"Bhasha"}${extra?` · ${extra}`:""}</div><div class="bubble"></div></div>`;wrap.querySelector(".bubble").textContent=text.replace(/\*\*(.*?)\*\*/g,"$1");$("chat").appendChild(wrap);renderMath(wrap);$("chat").scrollTop=$("chat").scrollHeight;return wrap}
+  function typing(){const wrap=document.createElement("div");wrap.className="message tutor";wrap.id="typing";wrap.innerHTML='<div><div class="meta">Bhasha</div><div class="bubble typing"><i></i><i></i><i></i></div></div>';$("chat").appendChild(wrap);$("chat").scrollTop=$("chat").scrollHeight}
+  function renderModel(items){modelItems=(Array.isArray(items)?items:[]).filter(item=>item&&tagLabels[item.tag]&&Number.isFinite(Number(item.count))).map(item=>({...item,count:Math.max(1,Math.min(Math.trunc(Number(item.count)),1000000)),recurring:Boolean(item.recurring)}));try{localStorage.setItem("bhasha-learner-model",JSON.stringify(modelItems))}catch{};$("count").textContent=`${modelItems.length} misconception${modelItems.length===1?"":"s"} tracked`;$("map").innerHTML=modelItems.length?modelItems.map(item=>{const color=item.count>=3?"green":item.count===2?"amber":"red";return `<div class="map-card ${color}"><div><strong>${tagLabels[item.tag]}</strong><small>${item.recurring?"Recurring · ":""}${item.count}× seen</small></div><span>${color==="green"?"●":color==="amber"?"◐":"○"}</span></div>`}).join(""):'<span class="map-empty">Your first pattern will appear here.</span>';renderPanel()}
+  function renderPanel(){$("panel-list").innerHTML=modelItems.length?modelItems.map(item=>`<div class="map-card ${item.count>=3?"green":item.count===2?"amber":"red"}"><div><strong>${tagLabels[item.tag]||"learning pattern"}</strong><small>Seen ${item.count} time${item.count===1?"":"s"} · ${item.recurring?"recurring":"new pattern"}</small></div></div>`).join(""):'<p class="model-note">No misconceptions tracked yet.</p>'}
+  async function refreshModel(){try{const saved=localStorage.getItem("bhasha-learner-model");if(saved!==null){renderModel(JSON.parse(saved));return}}catch{};try{const response=await fetch("/api/model");if(response.ok)renderModel((await response.json()).misconceptions)}catch{}}
+  function showError(message,request){$("error").innerHTML=`${message}<br><button class="retry" type="button">Retry</button>`;$("error").style.display="block";$("error").querySelector("button").onclick=()=>askTutor(request)}
+  async function askTutor(retryRequest=null,forceShowMe=false){
+    const showMe=forceShowMe||Boolean(retryRequest?.showMe);
+    const question=(retryRequest?.question??$("question").value).trim();
+    const enteredAttempt=(retryRequest?.attempt??$("attempt").value).trim();
+    const attempt=showMe?"show me":enteredAttempt;
+    const isNewQuestion=Boolean(question&&question!==activeQuestion);
+    const request={question,attempt,showMe,context:retryRequest?.context||conversation.slice(),language:retryRequest?.language||$("language").value,confidence:retryRequest?.confidence||confidence};
+    if(!question){$("error").textContent="Please enter your question first.";$("error").style.display="block";return}
+    if(!attempt&&!showMe){$("error").textContent="Show your thinking, or use Show answer for the full solution.";$("error").style.display="block";return}
+    if(isNewQuestion){conversation=[];activeQuestion=question;request.context=[];hintLevel=1;hintLevels[question]=1;$("chat").innerHTML='<span class="empty">Start with a doubt. I’ll ask what you’ve tried before I guide you.</span>'}
+    if(!activeQuestion)activeQuestion=question;
+    hintLevel=hintLevels[question]||hintLevel;
+    lastRequest=request;
+    $("ask").disabled=true;$("show-answer").disabled=true;$("error").style.display="none";
+    const displayAttempt=attempt;
+    if(!retryRequest)addMessage("student",`${question}\n\n${displayAttempt}`);
+    typing();
+    try{
+      const response=await fetch("/api/solve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question,attempt,confidence:request.confidence,hint_level:hintLevel,language:request.language,show_me:request.showMe,context:request.context,learner_model:modelItems})});
+      const data=await response.json();
+      if(!response.ok)throw new Error(data.error||"Something went wrong.");
+      $("typing")?.remove();
+      addMessage("tutor",data.reply,"feedback");
+      conversation.push({role:"user",content:displayAttempt},{role:"assistant",content:data.reply});
+      hintLevel=data.hint_level;hintLevels[question]=hintLevel;
+      $("question").value=question;$("question").readOnly=true;$("current-question-text").textContent=question;$("current-question").hidden=false;$("attempt").value="";
+      saveState();renderModel(data.learner_model);$("form").classList.add("compact-form");
+    }catch(error){$("typing")?.remove();$("attempt").value=attempt;showError(error.message,request)}
+    finally{$("ask").disabled=false;$("show-answer").disabled=false}
+  }
+  $("new-question").onclick=()=>{activeQuestion="";conversation=[];hintLevel=1;hintLevels={};$("question").readOnly=false;$("question").value="";$("attempt").value="";$("current-question").hidden=true;$("chat").innerHTML='<span class="empty">Start with a doubt. I’ll ask what you’ve tried before I guide you.</span>';saveState()};
+  $("ask").onclick=()=>askTutor();$("show-answer").onclick=()=>askTutor(null,true);$("count").onclick=()=>{$("panel-backdrop").style.display="flex"};$("close-panel").onclick=()=>{$("panel-backdrop").style.display="none"};$("reset-model").onclick=async()=>{if(!confirm("Reset your learner model? This cannot be undone."))return;const response=await fetch("/api/reset",{method:"POST"});if(!response.ok){showError("Could not reset your learner model.",lastRequest);return}renderModel([]);$("panel-backdrop").style.display="none"};$("panel-backdrop").onclick=event=>{if(event.target===$("panel-backdrop"))$("panel-backdrop").style.display="none"};
+  $("mic").onclick=()=>{const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SpeechRecognition){showError("Voice input is not supported in this browser.",lastRequest);return}const recognition=new SpeechRecognition(),language=$("language").value;recognition.lang=language==="Hindi"?"hi-IN":language==="Bengali"?"bn-IN":"en-IN";recognition.onresult=event=>$("attempt").value=event.results[0][0].transcript;recognition.start()};
+  restoreState();refreshModel();
+</script>
+</body>
+</html>
